@@ -14,5 +14,10 @@ const addToLS = (id) => {
   cart.push(id);
   saveCardToLS(cart);
 };
+const removeFromLS = (id) => {
+  const cart = getStorageCard();
+  const remaining = cart.filter((idx) => idx !== id);
+  saveCardToLS(remaining);
+};
 
-export { addToLS, getStorageCard };
+export { addToLS, getStorageCard, removeFromLS };

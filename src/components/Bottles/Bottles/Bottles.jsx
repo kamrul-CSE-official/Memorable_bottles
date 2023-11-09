@@ -2,7 +2,12 @@ import { useEffect } from "react";
 import { useState } from "react";
 import Card from "../Card/Card";
 import "./Bottles.css";
-import { addToLS, getStorageCard } from "../../../Utilities/localStorage";
+import {
+  addToLS,
+  getStorageCard,
+  removeFromLS,
+} from "../../../Utilities/localStorage";
+import AddToCart from "../../AddToCart/AddToCart";
 
 export default function Bottles() {
   const [bottles, setBottles] = useState([]);
@@ -16,19 +21,20 @@ export default function Bottles() {
       .catch((error) => console.log(error));
   }, []);
 
-  useEffect(()=>{
-    if(bottles.length > 0){
-        const localStorageData = getStorageCard();
-        console.log("LS: ",localStorageData)
+  useEffect(() => {
+    if (bottles.length) {
+      const localStorageData = getStorageCard();
 
-        for(const id of localStorageData){
-           const findBottols = bottles.find((bottle) => bottle.id === id);
-           const newCart = [...cart, findBottols];
-           setCart(newCart)
+      const savedCart = [];
+      for (const id of localStorageData) {
+        const bottle = bottles.find((bottle) => bottle.id === id);
+        if (bottle) {
+          savedCart.push(bottle);
         }
-        console.log("Save cart: ",cart)
+      }
+      setCart(savedCart);
     }
-  },[bottles])
+  }, [bottles, addtoCard]);
 
   const hendleAddtoCard = (data) => {
     const addNewBottle = [...addtoCard, data];
@@ -36,11 +42,19 @@ export default function Bottles() {
     addToLS(data.id);
   };
 
+  const handleRemoveCart = (id) => {
+    removeFromLS(id);
+    const remainingCart = cart.filter((bottle) => bottle.id !== id);
+    setCart(remainingCart);
+  };
+
   return (
     <div>
+      <div>
         <div>
-            cart: {cart.length}
+          <AddToCart cart={cart} handleRemoveCart={handleRemoveCart} />
         </div>
+      </div>
       <div className="bottles">
         {bottles.map((bottle) => (
           <Card
